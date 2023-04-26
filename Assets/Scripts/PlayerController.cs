@@ -26,43 +26,54 @@ public class PlayerController : MonoBehaviour
             startPos = touch.position;
         }
 
+        if(touch.phase == TouchPhase.Stationary)
+        {
+            if (Vector2.Distance(startPos, touch.position) < 0.5f) return;
+
+            endPos = touch.position;
+            Vector2 delta = endPos - startPos;
+            CalculateMoveDirection(delta);
+
+            startPos = touch.position;
+        }
+
         if(touch.phase == TouchPhase.Ended)
         {
             endPos = touch.position;
 
             Vector2 delta = endPos - startPos;
-
-            if(Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
-            {
-                if (delta.x > 0)
-                {
-                    Debug.Log("qua phai");
-                    player.Move(new Vector2(1, 0));
-                }
-                else
-                {
-                    Debug.Log("qua trai");
-                    player.Move(new Vector2(-1, 0));
-                }
-            }
-            else
-            {
-                if (delta.y > 0)
-                {
-                    Debug.Log("len tren");
-                    player.Move(new Vector2(0, 1));
-                }
-                else
-                {
-                    Debug.Log("xuong duoi");
-                    player.Move(new Vector2(0, -1));
-                }
-            }
+            CalculateMoveDirection(delta);
 
             startPos = Vector2.zero;
             endPos = Vector2.zero;
         }
 
-        
+
+    }
+
+    private void CalculateMoveDirection(Vector2 delta)
+    {
+        if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
+        {
+            if (delta.x > 0)
+            {
+                player.Move(new Vector2(1, 0));
+            }
+            else
+            {
+                player.Move(new Vector2(-1, 0));
+            }
+        }
+        else
+        {
+            if (delta.y > 0)
+            {
+                player.Move(new Vector2(0, 1));
+            }
+            else
+            {
+                player.Move(new Vector2(0, -1));
+            }
+        }
     }
 }
