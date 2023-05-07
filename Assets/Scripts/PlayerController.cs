@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    private Player player; 
+    private Player player;
 
     private Vector2 startPos;
     private Vector2 endPos;
 
+    private UnityAction onTrigger;
 
     private void Start()
     {
-        player = GetComponent<Player>();    
+        player = GetComponent<Player>();
     }
 
     void Update()
@@ -21,14 +21,14 @@ public class PlayerController : MonoBehaviour
 
         Touch touch = Input.GetTouch(0);
 
-        if(touch.phase == TouchPhase.Began)
+        if (touch.phase == TouchPhase.Began)
         {
             startPos = touch.position;
         }
 
-        if(touch.phase == TouchPhase.Stationary)
+        if (touch.phase == TouchPhase.Stationary)
         {
-            if (Vector2.Distance(startPos, touch.position) < 0.5f) return;
+            if (Vector2.Distance(startPos, touch.position) < 5f) return;
 
             endPos = touch.position;
             Vector2 delta = endPos - startPos;
@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
             startPos = touch.position;
         }
 
-        if(touch.phase == TouchPhase.Ended)
+        if (touch.phase == TouchPhase.Ended)
         {
             endPos = touch.position;
 
@@ -47,7 +47,6 @@ public class PlayerController : MonoBehaviour
             startPos = Vector2.zero;
             endPos = Vector2.zero;
         }
-
 
     }
 

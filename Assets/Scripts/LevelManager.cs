@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] List<GameObject> levelList = new List<GameObject>();
 
-    private int currentLevel;
+    [SerializeField] private int currentLevel;
 
     private void Awake()
     {

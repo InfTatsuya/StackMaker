@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public static Player Instance {  get; private set; }
+
+    public event EventHandler onPlayerWin;
 
     private readonly int MoveString = Animator.StringToHash("Move");
     private readonly int WinString = Animator.StringToHash("Win");
@@ -58,7 +61,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         foreach(AnimationClip clip in anim.runtimeAnimatorController.animationClips)
-        {
+        {  
             if(clip.name == "PlayerWin")
             {
                 winAnimationLegth = clip.length;
@@ -77,6 +80,8 @@ public class Player : MonoBehaviour
     {
         if (!IsControllable) return;
 
+        IsControllable = false;
+
         this.moveDirection = new Vector3(moveDirection.x, 0f, moveDirection.y);
         anim.SetTrigger(MoveString);
     }
@@ -85,9 +90,11 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Brick"))
         {
-            Destroy(other.gameObject);
             amountOfBricks++;
-            InstantiateNewBrick();
+
+            AddBrickToPlayer(other);
+
+            //InstantiateNewBrick();
         }
         else if (other.gameObject.CompareTag("Bridge"))
         {
@@ -99,9 +106,18 @@ public class Player : MonoBehaviour
                 DestroyBrick();
             }
         }
+        else if (other.gameObject.CompareTag("Push"))
+        {
+            if(other.TryGetComponent<Push>(out var push))
+            {
+                moveDirection += push.NormalVector;
+            }
+        }
         else if (other.gameObject.CompareTag("FinishLine"))
         {
             Debug.Log("win");
+
+            onPlayerWin?.Invoke(this, EventArgs.Empty);
 
             IsControllable = false;
         }
@@ -113,6 +129,37 @@ public class Player : MonoBehaviour
 
             TriggerWinPanel();
         }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Collision chay");
+
+        foreach(ContactPoint point in collision.contacts)
+        {
+            if(Mathf.Abs(point.normal.x + moveDirection.x) < 0.2f && Mathf.Abs(point.normal.z + moveDirection.z) < 0.2f)
+            {
+                IsControllable = true;
+                moveDirection = Vector3.zero;
+                Debug.Log("Stop");
+
+                return;
+            }
+        }
+    }
+
+    private void AddBrickToPlayer(Collider other)
+    {
+        other.GetComponent<BoxCollider>().enabled = false;
+
+        other.transform.SetParent(transform);
+        other.transform.localPosition = Vector3.zero;
+        Vector3 offsetVector = new Vector3(0f, offset * (amountOfBricks - 1), 0f);
+        other.transform.localPosition += offsetVector;
+
+        bricksList.Add(other.gameObject);
+
+        playerVisual.transform.localPosition = new Vector3(0f, 0.3f + offsetVector.y, 0f);
     }
 
     private void OnTriggerExit(Collider other)
@@ -137,11 +184,9 @@ public class Player : MonoBehaviour
     private void DestroyBrick()
     {
         amountOfBricks--;
-
         GameObject brickToDestroy = bricksList[bricksList.Count - 1];
         bricksList.Remove(brickToDestroy);
         Destroy(brickToDestroy);
-
         playerVisual.transform.localPosition = new Vector3(0f, 0.3f + offset * (amountOfBricks - 1), 0f);
 
     }

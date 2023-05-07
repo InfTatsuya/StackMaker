@@ -8,6 +8,8 @@ TagManager:
   - Bridge
   - FinishLine
   - Treasure
+  - BridgeFinish
+  - Push
   layers:
   - Default
   - TransparentFX
