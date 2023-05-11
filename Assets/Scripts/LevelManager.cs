@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    private const string LEVEL_KEY = "Level";
+
     public static LevelManager Instance { get; private set; }
 
     [SerializeField] List<GameObject> levelList = new List<GameObject>();
 
     [SerializeField] private int currentLevel;
+
+    private GameObject currentLevelInstance;
 
     private void Awake()
     {
@@ -24,42 +28,35 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        currentLevel = 1;
+        currentLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1);
 
         SetActiveLevel(currentLevel);
     }
 
     private void SetActiveLevel(int level)
     {
-        if (level > levelList.Count) return;
-
-        currentLevel = level;
-
-        for(int i = 0; i < levelList.Count; i++)
-        {
-            if(i == level - 1)
-            {
-                levelList[i].SetActive(true);
-            }
-            else
-            {
-                levelList[i].SetActive(false);
-            }
-        }
+        currentLevelInstance = Instantiate(levelList[currentLevel - 1], Vector3.zero, Quaternion.identity);
     }
 
     public void NextLevel()
     {
-        if (currentLevel >= levelList.Count)
+        Destroy(currentLevelInstance);
+
+        currentLevel++; 
+        PlayerPrefs.SetInt(LEVEL_KEY, currentLevel);
+
+        SetActiveLevel(currentLevel);
+    }
+
+    public void ResetLevel()
+    {
+        if(currentLevelInstance != null)
         {
-            currentLevel = 1;
-        }
-        else
-        {
-            currentLevel++;
+            Destroy(currentLevelInstance);
         }
 
         SetActiveLevel(currentLevel);
+        Player.Instance.NextLevel();
     }
 
     public int GetCurrentLevel() => currentLevel;

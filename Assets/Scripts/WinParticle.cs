@@ -23,6 +23,14 @@ public class WinParticle : MonoBehaviour
         //}
     }
 
+    private void OnDestroy()
+    {
+        if (player != null)
+        {
+            player.onPlayerWin -= Player_onPlayerWin;
+        }
+    }
+
     //private IEnumerator GetPlayerInstance()
     //{
     //    while(player == null)
