@@ -28,21 +28,21 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        currentLevel = PlayerPrefs.GetInt(LEVEL_KEY, 1);
+        currentLevel = PlayerPrefs.GetInt(LEVEL_KEY, 0);
 
         SetActiveLevel(currentLevel);
     }
 
     private void SetActiveLevel(int level)
     {
-        currentLevelInstance = Instantiate(levelList[currentLevel - 1], Vector3.zero, Quaternion.identity);
+        currentLevelInstance = Instantiate(levelList[currentLevel], Vector3.zero, Quaternion.identity);
     }
 
     public void NextLevel()
     {
         Destroy(currentLevelInstance);
 
-        currentLevel++; 
+        currentLevel = ++currentLevel % levelList.Count; 
         PlayerPrefs.SetInt(LEVEL_KEY, currentLevel);
 
         SetActiveLevel(currentLevel);
